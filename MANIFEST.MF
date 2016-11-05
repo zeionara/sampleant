@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.9.7
+Created-By: 1.8.0_101-b13 (Oracle Corporation)
+Main-Class: Lab3
+MD5: 7a2c46483d850f75240be4c7a0dd2209
+SHA-1: 5fade69a483ec2aa4de4cd5c87fa89ad9018e9a0
+
