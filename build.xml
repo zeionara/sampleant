@@ -1,6 +1,9 @@
 <project name="Lab3"  default="compile">
   <description>Check, is point in a Silhouette</description>
 
+  <property file="JVM.properties"/>
+  <property environment="env"/>
+
   <property name="unjartmp.dir" value="unjartmp"/>
   <property name="unjaredmf.file" value="${unjartmp.dir}/META-INF/MANIFEST.MF"/>
 
@@ -12,6 +15,25 @@
   <property name="src.test.dir" value="test"/>
 
   <property name="junit.jar" value="junit-4.12.jar"/>
+
+  <property name="radius" value="10"/>
+  <property name="compiler" value="javac1.9"/>
+  <property name="jvm" value="javaw.exe"/>
+
+  <target name="env.compile" description="Make *.class files from *.java files" depends="makedirs">
+    <javac destdir="${class.dir}" compiler="${compiler}">
+      <src path="${src.dir}"/>
+    </javac>
+  </target>
+
+  <target name="env" depends="env.compile">
+    <java classpath="${class.dir}" classname="Lab3" fork="true" jvm="${jvm}">
+      <arg value="${radius}"/>
+      <jvmarg value="${driver}"/>
+      <jvmarg value="${maxpermsize}"/>
+      <jvmarg value="${xms}"/>
+    </java>
+  </target>
 
   <target name="makedirs.test" description="Make dirs for test">
     <mkdir dir="${build.dir}"/>
