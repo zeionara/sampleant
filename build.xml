@@ -1,27 +1,101 @@
-<project name="Lab3"  default="compile">
-  <description>Check, is point in a Silhouette</description>
-
-  <property file="JVM.properties"/>
+<project name="Lab3" default="build" basedir=".">
   <property environment="env"/>
+  <property file="build.properties"/>
 
-  <property name="unjartmp.dir" value="unjartmp"/>
-  <property name="unjaredmf.file" value="${unjartmp.dir}/META-INF/MANIFEST.MF"/>
+  <taskdef file="${antlib.file}">
+        <classpath>
+            <pathelement location="${antcontrib.file}"/>
+        </classpath>
+  </taskdef>
 
-  <property name="build.dir" value="build"/>
-  <property name="class.dir" value="${build.dir}/class"/>
-  <property name="class.test.dir" value="${build.dir}/test"/>
-  <property name="jar.file" value="lab3.jar"/>
-  <property name="src.dir" value="src"/>
-  <property name="src.test.dir" value="test"/>
+  <target name="makedirs.compile" description="Create necessary directories for .class files">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${class.dir}"/>
+  </target>
 
-  <property name="junit.jar" value="junit-4.12.jar"/>
+  <target name="compile" depends="makedirs.compile" description="Compile our .java files">
+    <javac compiler="javac1.8" srcdir="${src.dir}" destdir="${class.dir}" includeAntRuntime="false" fork="true"/>
+  </target>
 
-  <property name="radius" value="10"/>
-  <property name="compiler" value="javac1.9"/>
-  <property name="jvm" value="javaw.exe"/>
+  <target name="build" depends="compile" description="Put compiled classes to the .jar file">
+    <jar destfile="${jar.file}" basedir="${class.dir}">
+      <manifest>
+        <attribute name="Version" value="2.0"/>
+        <attribute name="Main-Class" value="Lab3"/>
+      </manifest>
+    </jar>
+  </target>
 
-  <target name="env.compile" description="Make *.class files from *.java files" depends="makedirs">
-    <javac destdir="${class.dir}" compiler="${compiler}">
+  <target name="makedirs.test" description="Make dirs for test">
+    <mkdir dir="${testclass.dir}"/>
+  </target>
+
+  <target name="compile.test" description="Compilation of the tests" depends="build, makedirs.test">
+    <javac srcdir="${test.dir}" destdir="${testclass.dir}" includeantruntime="false" fork="true" >
+	    <classpath>
+          <pathelement location="${junit.file}"/>
+		      <pathelement path="${class.dir}"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="test" description="Run unit tests for the project" depends="compile.test">
+    <junit printsummary="yes" haltonerror="yes" haltonfailure="yes" fork="yes">
+      <formatter type="plain" usefile="false"/>
+	      <classpath>
+          <pathelement location="${junit.file}"/>
+		      <pathelement location="${jar.file}"/>
+		      <pathelement location="${testclass.dir}"/>
+          <pathelement location="${hamcrest.file}"/>
+        </classpath>
+        <batchtest fork="yes" todir="${testreport.dir}">
+          <fileset dir="${test.dir}">
+            <include name="**/*Test.java"/>
+          </fileset>
+        </batchtest>
+    </junit>
+  </target>
+
+  <target name="doc" description="Add docs to the jar file" depends="build">
+    <unjar src="${jar.file}" dest="${unjar.dir}"/>
+
+    <for param="file">
+      <path>
+          <fileset dir="${unjar.dir}">
+            <exclude name="**/*.html"/>
+            <exclude name="**/*.js"/>
+            <exclude name="**/*.MF"/>
+          </fileset>
+      </path>
+      <sequential>
+        <local name="md5" />
+        <local name="sha1" />
+        <local name="relativeFile" />
+
+        <checksum file="@{file}" algorithm="md5"  property="md5"/>
+        <checksum file="@{file}" algorithm="SHA-1"  property="sha1"/>
+        <property name="relativeFile" location="@{file}" basedir="${unjar.dir}" relative="true" />
+
+        <manifest file="${unjaredmf.file}" mode="update">
+          <section name="${relativeFile}">
+            <attribute name="MD5" value="${md5}"/>
+            <attribute name="SHA-1" value="${sha1}"/>
+          </section>
+        </manifest>
+      </sequential>
+    </for>
+
+    <javadoc destdir="${unjar.dir}/doc">
+        <fileset dir="${src.dir}" defaultexcludes="yes">
+          <include name="**/*.java"/>
+        </fileset>
+	  </javadoc>
+
+    <jar destfile="${jar.file}" manifest="${unjaredmf.file}" basedir="${unjar.dir}"/>
+  </target>
+
+  <target name="env.compile" description="Compile project in some invironment" depends="makedirs.compile">
+    <javac destdir="${class.dir}" compiler="${compiler}" fork="true">
       <src path="${src.dir}"/>
     </javac>
   </target>
@@ -35,144 +109,8 @@
     </java>
   </target>
 
-  <target name="makedirs.test" description="Make dirs for test">
-    <mkdir dir="${build.dir}"/>
-    <mkdir dir="${class.test.dir}"/>
-  </target>
-
-  <target name="compile.test" description="Compilation of the tests" depends="makedirs.test, build">
-    <echo>Compiling tests....</echo>
-    <javac includeantruntime="false"  destdir="${class.test.dir}">
-      <src path="${src.test.dir}"/>
-	    <classpath>
-          <pathelement location="${junit.jar}"/>
-		      <pathelement location="${class.dir}"/>
-      </classpath>
-    </javac>
-  </target>
-
-  <target name="test" description="Start test Lab3 GeneralSilhouette Silhouette classes" depends="compile.test">
-    <junit printsummary="yes" haltonerror="yes" haltonfailure="yes" fork="yes">
-      <formatter type="plain" usefile="false"/>
-	       <test name="Lab3Test"/>
-	       <classpath>
-          <pathelement location="${junit.jar}"/>
-		      <pathelement location="${class.dir}"/>
-		      <pathelement location="${class.test.dir}"/>
-        </classpath>
-    </junit>
-    <junit printsummary="yes" haltonerror="yes" haltonfailure="yes" fork="yes">
-      <formatter type="plain" usefile="false"/>
-	    <test name="GeneralSilhouetteTest"/>
-	      <classpath>
-          <pathelement location="${junit.jar}"/>
-		      <pathelement location="${class.dir}"/>
-		      <pathelement location="${class.test.dir}"/>
-        </classpath>
-    </junit>
-    <junit printsummary="yes" haltonerror="yes" haltonfailure="yes" fork="yes">
-      <formatter type="plain" usefile="false"/>
-	    <test name="SilhouetteTest"/>
-	       <classpath>
-          <pathelement location="${junit.jar}"/>
-		      <pathelement location="${class.dir}"/>
-		      <pathelement location="${class.test.dir}"/>
-        </classpath>
-    </junit>
-  </target>
-
-  <target name="makedirs.doc">
-    <mkdir dir="${unjartmp.dir}"/>
-    <mkdir dir="${unjartmp.dir}/doc"/>
-  </target>
-
-  <target name="doc" description="Add info to *.jar about this project" depends="makedirs.doc, create-javadoc">
-    <unjar src="${jar.file}" dest="${unjartmp.dir}"/>
-
-    <checksum totalproperty="sum.of.all.md5">
-      <fileset dir="${unjartmp.dir}">
-        <include name="*.class"/>
-      </fileset>
-    </checksum>
-
-    <manifest file="${unjaredmf.file}" mode="update">
-      <attribute name="MD5" value="${sum.of.all.md5}"/>
-    </manifest>
-
-    <checksum algorithm="SHA-1" totalproperty="sum.of.all.sha1">
-      <fileset dir="${unjartmp.dir}">
-        <include name="*.class"/>
-      </fileset>
-    </checksum>
-
-    <manifest file="${unjaredmf.file}" mode="update">
-      <attribute name="SHA-1" value="${sum.of.all.sha1}"/>
-    </manifest>
-
-    <delete dir="${unjartmp.dir}" includes="*.MD5"/>
-    <delete dir="${unjartmp.dir}" includes="*.SHA-1"/>
-
-    <jar destfile="${jar.file}">
-      <fileset dir="${unjartmp.dir}"/>
-      <manifest>
-        <attribute name="Main-Class" value="Lab3"/>
-        <attribute name="MD5" value="${sum.of.all.md5}"/>
-        <attribute name="SHA-1" value="${sum.of.all.sha1}"/>
-      </manifest>
-    </jar>
-
-    <delete dir="${unjartmp.dir}"/>
-  </target>
-
-  <target name="create-javadoc" description="Add documentation to unjartmp" depends="">
-        <property name="app.name"    value="Lab3" />
-        <property name="app.version" value="1.1" />
-        <property name="app.author"  value="ZeioNara" />
-        <property name="app.year"    value="2016" />
-        <property name="dir.package" value="" />
-        <property name="dir.src"     value="./src" />
-        <property name="dir.doc"     value="./doc" />
-
-        <echo message="Create docomentation" />
-
-
-        <javadoc destdir="${unjartmp.dir}/doc"
-                 use="true"
-                 private="true"
-                 author="${app.author}"
-                 version="${app.version}"
-                 windowtitle="${app.name} API"
-                 doctitle="${app.name}" >
-            <fileset dir="${src.dir}" defaultexcludes="yes">
-                 <include name="**/*.java"/>
-            </fileset>
-	    </javadoc>
-  </target>
-
-  <target name="build" description="Make *.jar file from *.class files" depends="compile">
-    <jar destfile="${jar.file}">
-      <fileset dir="${class.dir}">
-        <include name="**/*.class"/>
-        <exclude name="**/.git"/>
-      </fileset>
-      <manifest>
-        <attribute name="Main-Class" value="Lab3"/>
-      </manifest>
-    </jar>
-  </target>
-
-  <target name="makedirs" description="Make necessary dirs for compile target">
-    <mkdir dir="${build.dir}"/>
-    <mkdir dir="${class.dir}"/>
-  </target>
-
-  <target name="compile" description="Make *.class files from *.java files" depends="makedirs">
-    <javac destdir="${class.dir}">
-      <src path="${src.dir}"/>
-    </javac>
-  </target>
-
-  <target name="clean" description="Delete build directory">
-    <delete dir="${build.dir}"/>
+  <target name="clean" description="Delete all compiled files and temporary files">
+    <delete dir="${class.dir}"/>
+    <delete dir="${temp.dir}"/>
   </target>
 </project>
