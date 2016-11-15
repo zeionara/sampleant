@@ -1,44 +1,62 @@
-import junit.framework.TestCase;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 /**
- * Created by Zerbs on 05.11.2016.
+ * Created by Zerbs on 14.11.2016.
  */
-public class GeneralSilhouetteTest extends TestCase{
+public class GeneralSilhouetteTest {
+    GeneralSilhouette generalSilhouette = null;
+    @Before
+    public void initialize(){
+        generalSilhouette = new GeneralSilhouette(10.0);
+    }
 
-    public void testcheckPonto() throws Exception{
-        GeneralSilhouette gsh = new GeneralSilhouette(5);
-        assertFalse(gsh.checkPonto(new Ponto(0,0)));
-        assertFalse(gsh.checkPonto(new Ponto(0,3)));
-        assertFalse(gsh.checkPonto(new Ponto(0,7)));
-        assertTrue(gsh.checkPonto(new Ponto(2,0)));
-        assertFalse(gsh.checkPonto(new Ponto(2.5f,0)));
-        assertFalse(gsh.checkPonto(new Ponto(0,-3)));
-        assertFalse(gsh.checkPonto(new Ponto(0,-7)));
+    @Test
+    public void checkPonto_pontoInTheBeginningOfCoordinates_ReturnsFalse() throws Exception {
+        //arrange
+        Ponto ponto = new Ponto(0.0f,0.0f);
 
-        assertFalse(gsh.checkPonto(new Ponto(0,-2.5f)));
-        assertTrue(gsh.checkPonto(new Ponto(0,-2)));
-        assertFalse(gsh.checkPonto(new Ponto(3,0)));
-        assertFalse(gsh.checkPonto(new Ponto(7,0)));
-        assertFalse(gsh.checkPonto(new Ponto(-3,0)));
-        assertFalse(gsh.checkPonto(new Ponto(-7,0)));
+        //act
+        boolean rezult = generalSilhouette.checkPonto(ponto);
 
-        assertFalse(gsh.checkPonto(new Ponto(0,5)));
-        assertFalse(gsh.checkPonto(new Ponto(5,0)));
-        assertFalse(gsh.checkPonto(new Ponto((float)Math.sqrt(10),(float)Math.sqrt(15))));
-        assertFalse(gsh.checkPonto(new Ponto(10,10)));
-        assertTrue(gsh.checkPonto(new Ponto(2,2)));
+        //assert
+        assertFalse(rezult);
+    }
 
-        assertFalse(gsh.checkPonto(new Ponto(-5,-5)));
-        assertFalse(gsh.checkPonto(new Ponto(-2,-5)));
-        assertFalse(gsh.checkPonto(new Ponto(-5,-2)));
-        assertTrue(gsh.checkPonto(new Ponto(-2,-2)));
+    @Test
+    public void checkPonto_pontoInTheTriangularSilhouette_ReturnsTrue() throws Exception {
+        //arrange
+        Ponto ponto = new Ponto(0.2f,-4.2f);
 
-        assertFalse(gsh.checkPonto(new Ponto(-2,2)));
-        assertFalse(gsh.checkPonto(new Ponto(2,-2)));
-        assertTrue(gsh.checkPonto(new Ponto(1,-1)));
+        //act
+        boolean rezult = generalSilhouette.checkPonto(ponto);
+
+        //assert
+        assertTrue(rezult);
+    }
+    @Test
+    public void checkPonto_pontoInTheRectangularSilhouette_ReturnsTrue() throws Exception {
+        //arrange
+        Ponto ponto = new Ponto(-0.2f,-4.2f);
+
+        //act
+        boolean rezult = generalSilhouette.checkPonto(ponto);
+
+        //assert
+        assertTrue(rezult);
+    }
+    @Test
+    public void checkPonto_pontoInTheCircularSilhouette_ReturnsTrue() throws Exception {
+        //arrange
+        Ponto ponto = new Ponto(0.2f,4.2f);
+
+        //act
+        boolean rezult = generalSilhouette.checkPonto(ponto);
+
+        //assert
+        assertTrue(rezult);
     }
 
 }

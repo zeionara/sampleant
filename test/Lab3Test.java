@@ -1,38 +1,72 @@
-import junit.framework.TestCase;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 /**
- * Created by Zerbs on 05.11.2016.
+ * Created by Zerbs on 14.11.2016.
  */
-public class Lab3Test extends TestCase{
+public class Lab3Test {
+    Lab3 lab3 = null;
+    @Before
+    public void initialize(){
+        lab3 = new Lab3();
+    }
+
     @Test
-    public void testMain() {
-        Lab3 lab3 = new Lab3();
-        String[] args;
-        args = new String[]{};
+    public void main_correctStringArray_NoException() throws Exception {
+        //arrange
+        String args[] = {"1.2","4.33","5.6"};
 
-        lab3.main(args);
-        args = new String[]{""};
-        lab3.main(args);
-        args = new String[]{"hello"};
-        lab3.main(args);
-        args = new String[]{"h","e","l","l","o"};
+        //act
         lab3.main(args);
 
-        args = new String[]{"-12"};
+        //assert
+        //No one exception throwed
+    }
+    @Test
+    public void main_emptyStringArray_NoException() throws Exception {
+        //arrange
+        String args[] = {};
+
+        //act
         lab3.main(args);
-        args = new String[]{"-12.9"};
+
+        //assert
+        //No one exception throwed
+    }
+    @Test
+    public void main_incorrectStringArray_NoException() throws Exception {
+        //arrange
+        String args[] = {"aaa","12.2","bbb"};
+
+        //act
         lab3.main(args);
-        args = new String[]{"-12","-13","-14"};
+
+        //assert
+        //No one exception throwed
+    }
+    @Test
+    public void main_radiusLessThanZeroInStringArray_NoException() throws Exception {
+        //arrange
+        String args[] = {"-13"};
+
+        //act
         lab3.main(args);
-        args = new String[]{"0"};
+
+        //assert
+        //No one exception throwed
+    }
+    @Test
+    public void main_radiusEqualsToZeroInStringArray_NoException() throws Exception {
+        //arrange
+        String args[] = {"0.0"};
+
+        //act
         lab3.main(args);
-        args = new String[]{"12"};
-        lab3.main(args);
-        args = new String[]{"12","13","14"};
-        lab3.main(args);
+
+        //assert
+        //No one exception throwed
     }
 
 }

@@ -1,41 +1,52 @@
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 /**
- * Created by Zerbs on 04.11.2016.
+ * Created by Zerbs on 14.11.2016.
  */
-public class SilhouetteTest extends TestCase{
-    private GeneralSilhouette gsh = new GeneralSilhouette(10);
+public class SilhouetteTest {
+    TriangularSilhouette triangularSilhouette = null;
 
-    public void testsetRFaledLessThanZero() throws Exception {
-        int a = 0;
-        try {
-            gsh.setR(-20);
-        } catch (IllegalArgumentException e){
-            a = 1;
-        }
-        assertTrue(a==1);
+    @Before
+    public void initialize(){
+        triangularSilhouette = new TriangularSilhouette(10.0);
     }
 
-    public void testsetRFaledEqualsToZero() throws Exception {
-        int a = 0;
-        try {
-            gsh.setR(0);
-        } catch (IllegalArgumentException e){
-            a = 1;
-        }
-        assertTrue(a==1);
-    }
+    @Test
+    public void setR_RmoreThanZero_RsuccesfullySet() throws Exception {
+        //arrange
+        double newR = 15.0f;
 
-    public void testsetR() throws Exception {
-        gsh.setR(20);
-    }
+        //act
+        triangularSilhouette.setR(newR);
 
-    public void testgetR() throws Exception {
-        gsh.setR(20);
-        assertTrue(gsh.getR()==20);
+        //assert
+        assertTrue(triangularSilhouette.getR()==newR);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void setR_RequalsToZero_ThrowedIllegalArgumentException() throws Exception {
+        //arrange
+        double newR = 0.0f;
+
+        //act
+        triangularSilhouette.setR(newR);
+
+        //assert
+        //Exception throwed
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void setR_LessThanZero_ThrowedIllegalArgumentException() throws Exception {
+        //arrange
+        double newR = -10.0f;
+
+        //act
+        triangularSilhouette.setR(newR);
+
+        //assert
+        //Exception throwed
     }
 
 }
